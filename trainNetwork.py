@@ -7,6 +7,12 @@ import csv
 import numpy as np
 import pandas as pd
 
+# Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
+# the memory used on the GPU
+# https://github.com/tensorflow/tensorflow/issues/24828#issuecomment-464957482
+config = tf.compat.v1.ConfigProto()
+config.gpu_options.allow_growth = True
+
 
 ######### MODEL LOADING #########
 
