@@ -69,3 +69,16 @@ def parseAnnotationsCSV(csvPath, framesPath, targetSize):
 trainFramesPath = 'D:\\CSVP2019\\copied\\data\\test\\imc'
 trainAnnotationsCSVPath = 'D:\\CSVP2019\\copied\\annotations\\annotations_test_imc.csv'
 trainFrames, trainLabels = parseAnnotationsCSV(trainAnnotationsCSVPath, trainFramesPath, targetSize)
+
+trainLabels = to_categorical(trainLabels)
+
+
+######### MODEL TRAINING #########
+
+history = model.fit(
+    trainFrames,
+    trainLabels,
+    callbacks=[checkpoint],
+    epochs=10,
+    validation_split=0.1
+)
