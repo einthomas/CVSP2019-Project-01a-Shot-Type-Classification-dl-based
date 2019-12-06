@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.preprocessing import image
 from keras.utils import to_categorical
+import yaml
 import os
-import csv
 import numpy as np
 import cv2
 
@@ -13,12 +13,18 @@ import cv2
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 
+executablePath = os.path.dirname(os.path.realpath(__file__))
+
+# Load config.yaml
+config = {}
+with open(os.path.join(executablePath, 'config.yaml')) as configFile:
+    config = yaml.full_load(configFile)
+
 
 ######### MODEL LOADING #########
 
 # Load pretrained model for transfer learning
-modelPath = 'D:\\CSVP2019\\model\\model_shotscale_967.h5'
-oldModel = keras.models.load_model(modelPath)
+oldModel = keras.models.load_model(config['modelPath'])
 
 # Discard the last two layers (global avg pooling and the last dense layer)
 layers = oldModel.layers[len(oldModel.layers) - 3].output
@@ -36,12 +42,13 @@ model.compile(
     metrics=['accuracy']
 )
 
+'''
 checkpoint = keras.callbacks.ModelCheckpoint(
     filepath='D:\\CSVP2019\\model\\model_transfer.h5',
     monitor='val_acc',
     save_best_only=True
 )
-
+'''
 
 ######### LOAD DATA #########
 
@@ -83,13 +90,11 @@ shotTypes = ['CU', 'MS', 'LS', 'ELS']
 targetSize = 224
 
 # Load training data
-trainFramesPath = 'D:\\CSVP2019\\copied_merge_new\\train'
-trainFrames, trainLabels = loadFramesLabels(trainFramesPath, shotTypes, targetSize)
+trainFrames, trainLabels = loadFramesLabels(config['trainFramesPath'], shotTypes, targetSize)
 trainLabels = to_categorical(trainLabels)
 
 # Load validation data
-valFramesPath = 'D:\\CSVP2019\\copied_merge_new\\val'
-valFrames, valLabels = loadFramesLabels(valFramesPath, shotTypes, targetSize)
+valFrames, valLabels = loadFramesLabels(config['valFramesPath'], shotTypes, targetSize)
 valLabels = to_categorical(valLabels)
 
 
