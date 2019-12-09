@@ -6,6 +6,8 @@ import os
 import csv
 import numpy as np
 
+from Common.loadModel import loadModel
+
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
 # https://github.com/tensorflow/tensorflow/issues/24828#issuecomment-464957482
@@ -14,26 +16,7 @@ import numpy as np
 
 
 ######### MODEL LOADING #########
-
-# Load pretrained model for transfer learning
-modelPath = 'D:\\CSVP2019\\model\\model_shotscale_967.h5'
-oldModel = keras.models.load_model(modelPath)
-
-# Discard the last two layers (global avg pooling and the last dense layer)
-layers = oldModel.layers[len(oldModel.layers) - 3].output
-
-# Add two new layers
-layers = keras.layers.GlobalAveragePooling2D()(layers)
-layers = keras.layers.Dense(4, activation='softmax')(layers)
-
-# Build new model
-model = keras.models.Model(inputs=oldModel.input, outputs=layers)
-model.load_weights('D:\\CSVP2019\\model\\trained_model_weights.h5')
-
-# modelPath = 'D:\\CSVP2019\\model\\trained_model.h5'
-# model = keras.models.load_model(modelPath)
-
-# print(modelPath)
+model = loadModel()
 
 
 ######### LOAD DATA #########

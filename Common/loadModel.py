@@ -1,6 +1,7 @@
 from tensorflow import keras
 from .util import *
 
+
 def loadModel():
     if os.path.exists(getConfigRelativePath('modifiedModel')):
         model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
