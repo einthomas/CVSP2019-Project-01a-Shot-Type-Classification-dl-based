@@ -1,12 +1,6 @@
-import datetime
 import os
-
-import numpy as np
 import tensorflow as tf
-import yaml
-from keras.preprocessing import image
-from keras.utils import to_categorical
-from tensorflow import keras
+from Common.loadModel import loadModel
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
@@ -14,41 +8,9 @@ from tensorflow import keras
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 
-executablePath = os.path.dirname(os.path.realpath(__file__))
-
-# Load config.yaml
-config = {}
-with open(os.path.join(executablePath, 'config.yaml')) as configFile:
-    config = yaml.full_load(configFile)
-
 
 ######### MODEL LOADING #########
-
-# Load pretrained model for transfer learning
-oldModel = keras.models.load_model(config['modelPath'])
-
-# Discard the last two layers (global avg pooling and the last dense layer)
-layers = oldModel.layers[len(oldModel.layers) - 3].output
-
-# Add two new layers
-layers = keras.layers.GlobalAveragePooling2D()(layers)
-layers = keras.layers.Dense(4, activation='softmax')(layers)
-
-# Replace the input layer to change the input shape
-oldModel._layers[0]._batch_input_shape = (None, 224, 224, 3)
-
-# Build new model
-model = keras.models.Model(inputs=oldModel.input, outputs=layers)
-
-model.compile(
-    optimizer=keras.optimizers.Adam(lr=1e-4),
-    # optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['accuracy']
-)
-
-with open(os.path.join(executablePath, 'Logs\\modelSummary.txt'), 'w') as f:
-    model.summary(print_fn=lambda x: f.write(x + '\n'))
+model = loadModel()
 
 
 ######### LOAD DATA #########
