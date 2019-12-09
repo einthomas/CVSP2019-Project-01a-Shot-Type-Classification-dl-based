@@ -3,4 +3,3 @@ modelWeightsPath: D:\CSVP2019\model\model_weights.h5
 
 trainFramesPath: D:\CSVP2019\copied_merge_new\train
 valFramesPath: D:\CSVP2019\copied_merge_new\val
-

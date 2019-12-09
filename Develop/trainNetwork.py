@@ -1,11 +1,12 @@
+import datetime
+import os
+
+import numpy as np
 import tensorflow as tf
-from tensorflow import keras
+import yaml
 from keras.preprocessing import image
 from keras.utils import to_categorical
-import yaml
-import os
-import numpy as np
-import cv2
+from tensorflow import keras
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
@@ -33,22 +34,22 @@ layers = oldModel.layers[len(oldModel.layers) - 3].output
 layers = keras.layers.GlobalAveragePooling2D()(layers)
 layers = keras.layers.Dense(4, activation='softmax')(layers)
 
+# Replace the input layer to change the input shape
+oldModel._layers[0]._batch_input_shape = (None, 224, 224, 3)
+
 # Build new model
 model = keras.models.Model(inputs=oldModel.input, outputs=layers)
+
 model.compile(
     optimizer=keras.optimizers.Adam(lr=1e-4),
-    #optimizer='adam',
+    # optimizer='adam',
     loss='categorical_crossentropy',
     metrics=['accuracy']
 )
 
-'''
-checkpoint = keras.callbacks.ModelCheckpoint(
-    filepath='D:\\CSVP2019\\model\\model_transfer.h5',
-    monitor='val_acc',
-    save_best_only=True
-)
-'''
+with open(os.path.join(executablePath, 'Logs\\modelSummary.txt'), 'w') as f:
+    model.summary(print_fn=lambda x: f.write(x + '\n'))
+
 
 ######### LOAD DATA #########
 
@@ -58,13 +59,16 @@ def centerCropImage(img, targetSize):
     # Resize image while keeping its aspect ratio
     width, height = img.size
     aspectRatio = width / height
-    img = img.resize((int(targetSize * aspectRatio), targetSize))
-    
+    resizedWidth = int(targetSize * aspectRatio)
+    resizedWidth = resizedWidth + resizedWidth % 2
+    img = img.resize((resizedWidth, targetSize))
+
     # Apply a center crop by cutting away the same number of pixels at both
     # sides, left and right, of the image
     width, height = img.size
     offsetX = round((width - targetSize) * 0.5)
     return img.crop((offsetX, 0, width - offsetX, height))
+
 
 # Loads the frames located in path. It is assumed that the frames are located
 # in folders named according to their shot type (CU, MS, LS or ELS)
@@ -73,18 +77,23 @@ def loadFramesLabels(path, shotTypes, targetSize):
     labels = []
 
     for shotType in shotTypes:
-        currentPath = os.path.join(path, shotTypes)
+        currentPath = os.path.join(path, shotType)
         for imageName in os.listdir(currentPath):
-            labels.append(shotTypes)
+            labels.append(shotTypes.index(shotType))
 
             # Load, scale and crop image
-            img = image.load_img(os.path.join(currentPath, imageName + '.jpg'), grayscale=True)
+            img = image.load_img(os.path.join(currentPath, imageName), color_mode="grayscale")
             img = centerCropImage(img, targetSize)
             img = image.img_to_array(img)
             img = img / 255.0
+
+            # reshape image from (224, 224, 1) to (224, 224, 3)
+            img = np.squeeze(np.stack((img,)*3, axis=-1))
+
             frames.append(img)
-    
+
     return np.array(frames), np.array(labels)
+
 
 shotTypes = ['CU', 'MS', 'LS', 'ELS']
 targetSize = 224
@@ -99,21 +108,15 @@ valLabels = to_categorical(valLabels)
 
 
 ######### MODEL TRAINING #########
+log_dir = os.path.join(executablePath, "Logs\\fit\\" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
 history = model.fit(
     trainFrames,
     trainLabels,
-    #validation_data=(valFrames, valLabels),
-    #callbacks=[checkpoint],
-    epochs=10,
-    validation_split=0.1
+    validation_data=(valFrames, valLabels),
+    callbacks=[tensorboard_callback],
+    epochs=10
 )
 
-#history_df = pd.DataFrame(history.history)
-#history_df[['loss', 'val_loss']].plot()
-#history_df[['acc', 'val_acc']].plot()
-
-#a = model.predict(valFrames)
-#a.to_csv('D:\\CSVP2019\\copied_merge\\asdf.csv')
-
-model.save_weights('D:\\CSVP2019\\model\\trained_model_weights.h5')
+model.save_weights(config['modelWeightsPath'])
