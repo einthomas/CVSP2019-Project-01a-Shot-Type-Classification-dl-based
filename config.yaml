@@ -1,13 +1,14 @@
 workingDirectory: C:\Users\Thomas\Documents\dev\projects\ml\CVSP2019-Project-01a-Shot-Type-Classification-dl-based
-dataDirectory: D:\CSVP2019\copied_merge_new
 
 originalModel: Common\Models\model_shotscale_967.h5
 modifiedModel: Common\Models\modified_model.h5
 modelWeights: Common\Models\model_weights.h5
+checkpointModel: Common\Models\model_checkpoint_weights.h5
 
 commonLogs: Common\Logs
 developLogs: Develop\Logs
-developTrainingLogs: Develop\Logs\fit
+developTrainingLogs: Develop\Logs\fit\
 
-trainFrames: train
-valFrames: val
+trainFrames: C:\Users\Thomas\Pictures\db_v6\train
+valFrames: C:\Users\Thomas\Pictures\db_v6\val
+testFrames: C:\Users\Thomas\Pictures\db_v6\test

@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from keras.preprocessing import image
+from PIL import ImageOps
 
 
 # Resize an image and apply a center crop. The returned image is a square with
@@ -8,6 +9,8 @@ from keras.preprocessing import image
 def centerCropImage(img, targetSize):
     # Resize image while keeping its aspect ratio
     width, height = img.size
+    if height < targetSize:
+        print(str(height) + " height < targetSize")
     aspectRatio = width / height
     resizedWidth = int(targetSize * aspectRatio)
     resizedWidth = resizedWidth + resizedWidth % 2
@@ -22,7 +25,7 @@ def centerCropImage(img, targetSize):
 
 # Loads the frames located in path. It is assumed that the frames are located
 # in folders named according to their shot type (CU, MS, LS or ELS)
-def loadFramesLabels(path, shotTypes, targetSize):
+def loadFramesLabels(path, shotTypes, targetSize, standardize=False):
     frames = []
     labels = []
 
@@ -34,11 +37,17 @@ def loadFramesLabels(path, shotTypes, targetSize):
             # Load, scale and crop image
             img = image.load_img(os.path.join(currentPath, imageName), color_mode="grayscale")
             img = centerCropImage(img, targetSize)
+            #img = ImageOps.autocontrast(img, cutoff=5)
+            img = ImageOps.equalize(img, mask=None)
             img = image.img_to_array(img)
             img = img / 255.0
 
-            # reshape image from (224, 224, 1) to (224, 224, 3)
+            # Reshape image from (224, 224, 1) to (224, 224, 3)
             img = np.squeeze(np.stack((img,)*3, axis=-1))
+
+            # Zero center normalization
+            if standardize:
+                img = (img - img.mean()) / img.std()
 
             frames.append(img)
 

@@ -3,33 +3,38 @@ from .util import *
 
 
 def loadModel():
-    if os.path.exists(getConfigRelativePath('modifiedModel')):
-        model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
-    else:
-        # Load pretrained model for transfer learning
-        oldModel = keras.models.load_model(getConfigRelativePath('originalModel'))
+    baseModel = keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
-        # Discard the last two layers (global avg pooling and the last dense layer)
-        layers = oldModel.layers[len(oldModel.layers) - 3].output
+    # Freeze all layers except for the last eight
+    for layer in baseModel.layers[:-8]:
+        layer.trainable = False
+    for layer in baseModel.layers[-8:]:
+        layer.trainable = True
 
-        # Add two new layers
-        layers = keras.layers.GlobalAveragePooling2D()(layers)
-        layers = keras.layers.Dense(4, activation='softmax')(layers)
+    for layer in baseModel.layers:
+        print(layer, layer.trainable)
 
-        # Replace the input layer to change the input shape
-        oldModel._layers[0]._batch_input_shape = (None, 224, 224, 3)
+    print("building model...")
+    x = baseModel.output
+    x = keras.layers.Dropout(0.5)(x)
+    x = keras.layers.GlobalAveragePooling2D()(x)
 
-        # Build new model
-        model = keras.models.Model(inputs=oldModel.input, outputs=layers)
+    predictions = keras.layers.Dense(4, activation='softmax')(x)
+    model = keras.models.Model(inputs=baseModel.input, outputs=predictions)
 
-        model.compile(
-            optimizer=keras.optimizers.Adam(lr=1e-4),
-            # optimizer='adam',
-            loss='categorical_crossentropy',
-            metrics=['accuracy']
-        )
+    print("compiling model...")
+    model.compile(
+        optimizer=keras.optimizers.Adam(lr=5e-5),
+        loss='categorical_crossentropy',
+        metrics=['accuracy', keras.metrics.Precision(), keras.metrics.Recall()]
+    )
 
-        model.save(getConfigRelativePath('modifiedModel'))
+    if os.path.exists(getConfigRelativePath('checkpointModel')):
+        # Load weights
+        print("load weights from " + getConfigRelativePath('checkpointModel'))
+        model.load_weights(getConfigRelativePath('checkpointModel'))
+
+    model.save(getConfigRelativePath('modifiedModel'))
 
     with open(os.path.join(getConfigRelativePath('commonLogs'), 'modelSummary.txt'), 'w') as f:
         model.summary(print_fn=lambda x: f.write(x + '\n'))
