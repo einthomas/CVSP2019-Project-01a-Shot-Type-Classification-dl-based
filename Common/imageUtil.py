@@ -23,10 +23,27 @@ def centerCropImage(img, targetSize):
     return img.crop((offsetX, 0, width - offsetX, height))
 
 
-# Loads the frames located in path. It is assumed that the frames are located
+def preprocessImage(img, targetSize, standardize):
+    img = centerCropImage(img, targetSize)
+    # img = ImageOps.autocontrast(img, cutoff=5)
+    img = ImageOps.equalize(img, mask=None)
+    img = image.img_to_array(img)
+    img = img / 255.0
+
+    # Reshape image from (224, 224, 1) to (224, 224, 3)
+    img = np.squeeze(np.stack((img,) * 3, axis=-1))
+
+    # Zero center normalization
+    if standardize:
+        img = (img - img.mean()) / img.std()
+
+    return img
+
+
+# Loads the images located at path. It is assumed that the images are located
 # in folders named according to their shot type (CU, MS, LS or ELS)
-def loadFramesLabels(path, shotTypes, targetSize, standardize=False):
-    frames = []
+def loadImagesAndLabels(path, shotTypes, targetSize, standardize=False):
+    images = []
     labels = []
 
     for shotType in shotTypes:
@@ -34,21 +51,29 @@ def loadFramesLabels(path, shotTypes, targetSize, standardize=False):
         for imageName in os.listdir(currentPath):
             labels.append(shotTypes.index(shotType))
 
-            # Load, scale and crop image
+            # Load and preprocess image
             img = image.load_img(os.path.join(currentPath, imageName), color_mode="grayscale")
-            img = centerCropImage(img, targetSize)
-            #img = ImageOps.autocontrast(img, cutoff=5)
-            img = ImageOps.equalize(img, mask=None)
-            img = image.img_to_array(img)
-            img = img / 255.0
+            img = preprocessImage(img, targetSize, standardize)
+            images.append(img)
 
-            # Reshape image from (224, 224, 1) to (224, 224, 3)
-            img = np.squeeze(np.stack((img,)*3, axis=-1))
+    return np.array(images), np.array(labels)
 
-            # Zero center normalization
-            if standardize:
-                img = (img - img.mean()) / img.std()
 
-            frames.append(img)
+# Loads all images located at path and in subfolders of path
+def loadImagesFromFolder(path, targetSize, standardize=False):
+    images = []
 
-    return np.array(frames), np.array(labels)
+    for root, subdirs, files in os.walk(path):
+        for file in files:
+            # Load and preprocess image
+            img = image.load_img(os.path.join(root, file), color_mode="grayscale")
+            img = preprocessImage(img, targetSize, standardize)
+            images.append(img)
+
+    return np.array(images)
+
+
+# Loads a single image located at path
+def loadImage(path, targetSize, standardize=False):
+    img = image.load_img(path, color_mode="grayscale")
+    return np.array([preprocessImage(img, targetSize, standardize)])

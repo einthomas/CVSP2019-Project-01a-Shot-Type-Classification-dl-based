@@ -26,7 +26,7 @@ targetImageSize = 224
 
 # Load training data
 print("loading training data...")
-trainFrames, trainLabels = loadFramesLabels(trainFramesPath, shotTypes, targetImageSize)
+trainFrames, trainLabels = loadImagesAndLabels(trainFramesPath, shotTypes, targetImageSize)
 trainLabels = to_categorical(trainLabels)
 datagenTrain = ImageDataGenerator(brightness_range=[0.8, 1.0], samplewise_center=True, samplewise_std_normalization=True,
                                   width_shift_range = 0.2, height_shift_range = 0.05, horizontal_flip=True,
@@ -35,7 +35,7 @@ datagenTrain.fit(trainFrames)
 
 # Load validation data
 print("loading validation data...")
-valFrames, valLabels = loadFramesLabels(valFramesPath, shotTypes, targetImageSize)
+valFrames, valLabels = loadImagesAndLabels(valFramesPath, shotTypes, targetImageSize)
 valLabels = to_categorical(valLabels)
 datagenVal = ImageDataGenerator(brightness_range=[0.8, 1.0], samplewise_center=True, samplewise_std_normalization=True,
                                 width_shift_range = 0.2, height_shift_range = 0.05, horizontal_flip=True,
