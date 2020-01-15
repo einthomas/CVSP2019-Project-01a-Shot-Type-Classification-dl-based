@@ -39,22 +39,24 @@ def predictShotType_testData():
     results_bool = np.argmax(results, axis=1)
     print(classification_report(testLabels, results_bool))
 
-
+model = 0
 def predictShotType_production(images):
-    # Load model and weights
-    if os.path.exists(getConfigRelativePath('modifiedModel')):
-        # Load model
-        print("load model from " + getConfigRelativePath('modifiedModel'))
-        model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
-        if os.path.exists(getConfigRelativePath('checkpointModel')):
-            # Load weights
-            print("load weights from " + getConfigRelativePath('checkpointModel'))
-            model.load_weights(getConfigRelativePath('checkpointModel'))
+    global model
+    if model == 0:
+        # Load model and weights
+        if os.path.exists(getConfigRelativePath('modifiedModel')):
+            # Load model
+            print("load model from " + getConfigRelativePath('modifiedModel'))
+            model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
+            if os.path.exists(getConfigRelativePath('checkpointModel')):
+                # Load weights
+                print("load weights from " + getConfigRelativePath('checkpointModel'))
+                model.load_weights(getConfigRelativePath('checkpointModel'))
 
     # Predict image data shot types
     predictions = model.predict(images)
-    labelPredictions = [shotTypes[np.argmax(prediction)] for prediction in predictions]
-    return labelPredictions
+    labels = [shotTypes[np.argmax(prediction)] for prediction in predictions]
+    return labels
 
 
 if __name__ == '__main__':

@@ -7,7 +7,6 @@ from shutil import copyfile
 from Common.imageUtil import *
 from Common.loadModel import *
 from Common.util import *
-
 from Common.lr_finder import *
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow

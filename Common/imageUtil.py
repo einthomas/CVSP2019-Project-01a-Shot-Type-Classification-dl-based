@@ -2,6 +2,7 @@ import os
 import numpy as np
 from keras.preprocessing import image
 from PIL import ImageOps
+import cv2
 
 
 # Resize an image and apply a center crop. The returned image is a square with
@@ -24,6 +25,7 @@ def centerCropImage(img, targetSize):
 
 
 def preprocessImage(img, targetSize, standardize):
+    img = img.convert('L')
     img = centerCropImage(img, targetSize)
     # img = ImageOps.autocontrast(img, cutoff=5)
     img = ImageOps.equalize(img, mask=None)
@@ -75,5 +77,5 @@ def loadImagesFromFolder(path, targetSize, standardize=False):
 
 # Loads a single image located at path
 def loadImage(path, targetSize, standardize=False):
-    img = image.load_img(path, color_mode="grayscale")
+    img = image.load_img(path)#, color_mode="grayscale")
     return np.array([preprocessImage(img, targetSize, standardize)])
