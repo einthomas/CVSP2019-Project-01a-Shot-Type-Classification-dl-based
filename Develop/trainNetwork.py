@@ -5,9 +5,8 @@ from keras.preprocessing.image import ImageDataGenerator
 from shutil import copyfile
 
 from Common.imageUtil import *
-from Common.loadModel import *
+from Develop.loadModel import *
 from Common.util import *
-from Common.lr_finder import *
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU

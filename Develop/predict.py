@@ -2,7 +2,7 @@ from keras.utils import to_categorical
 from sklearn.metrics import classification_report
 
 from Common.imageUtil import *
-from Common.loadModel import *
+from Develop.loadModel import *
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU

@@ -1,5 +1,5 @@
 from tensorflow import keras
-from .util import *
+from Common.util import *
 
 
 def loadModel():
