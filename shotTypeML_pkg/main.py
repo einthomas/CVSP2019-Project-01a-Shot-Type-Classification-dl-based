@@ -2,7 +2,7 @@ import sys
 import getopt
 import cv2
 
-from Common.imageUtil import loadImage, loadImagesFromFolder, preprocessImage
+from Common.imageUtil import loadImage, preprocessImage
 
 from Develop.predict import *
 from PIL import Image
@@ -18,7 +18,7 @@ def printUsage():
     print('-h: prints usage information')
     print('-i path: specifies a path where an input image or a folder containing images is located')
     print('-v path: specifies a path where an input video or a folder containing videos is located')
-    #print('-o path: specifies an output path where the annotated image or video (.mp4) is stored')
+    print('-o path: specifies where the resulting CSV file is stored')
 
 
 def main(argv):
@@ -89,40 +89,12 @@ def main(argv):
             csvContent.append(i + ";" + label)
 
     # Write CSV file
-    csvFile = open(outputPath, "w")
-    csvFile.write('\n'.join(csvContent))
-    csvFile.close()
+    if outputPath != '':
+        csvFile = open(outputPath, "w")
+        csvFile.write('\n'.join(csvContent))
+        csvFile.close()
 
-
-    '''
-    isVideoInput = False
-    if inputPath.endswith('.mp4'):
-        isVideoInput = True
-    if isVideoInput and outputPath == '':
-        print(str('classifying a video requires to specify an output path [-o path]'))
-        sys.exit(2)
-
-    isFolderInput = os.path.isdir(inputPath)
-
-    targetImageSize = 112       # TODO CHANGE TO 224
-    labels = []
-    if isVideoInput:
-        videoPaths = []
-        for f in os.listdir(inputPath):
-            if os.path.isfile(f) and f.endswith(".mp4"):
-                videoPaths.append(f)
-        if isFolderInput:
-            images = loadImagesFromFolder(inputPath, targetImageSize, True)
-        else:
-            images.append(loadImage(inputPath, targetImageSize, True))
-    else:
-        images = []
-        if isFolderInput:
-            images = loadImagesFromFolder(inputPath, targetImageSize, True)
-        else:
-            images.append(loadImage(inputPath, targetImageSize, True))
-        labels = predictShotType_production(images)
-    '''
+    return csvContent
 
 if __name__ == '__main__':
     main(sys.argv[1:])
