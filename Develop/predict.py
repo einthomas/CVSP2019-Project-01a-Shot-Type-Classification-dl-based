@@ -27,7 +27,7 @@ def predictShotType_testData():
             print("load weights from " + getConfigRelativePath('modelWeights'))
             model.load_weights(getConfigRelativePath('modelWeights'))
 
-    targetImageSize = 224
+    targetImageSize = int(config['targetImageSize'])
 
     # Load test data
     print("loading test data...")

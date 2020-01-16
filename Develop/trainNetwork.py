@@ -22,7 +22,7 @@ def trainNetwork():
     valFramesPath = config['valFrames']
 
     shotTypes = ['CU', 'MS', 'LS', 'ELS']
-    targetImageSize = 224
+    targetImageSize = int(config['targetImageSize'])
 
     # Load training data
     print("loading training data...")
@@ -73,7 +73,7 @@ def trainNetwork():
 
     # Train the model
     model = loadModel()
-    epochs = 3
+    epochs = int(config['trainingEpochs'])
 
     # During development the learning rate finder class by Bradley Kenstler has been used to find an optimal learning rate
     #lr_finder = LRFinder(min_lr=1e-7, max_lr=1e-3, steps_per_epoch=np.ceil(len(trainFrames) / 32.0), epochs=epochs)

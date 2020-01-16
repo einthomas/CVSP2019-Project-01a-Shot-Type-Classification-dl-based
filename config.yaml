@@ -1,3 +1,4 @@
+# Paths
 workingDirectory: C:\Users\Thomas\Documents\dev\projects\ml\CVSP2019-Project-01a-Shot-Type-Classification-dl-based
 
 model: Common\Models\modified_model.h5
@@ -10,3 +11,6 @@ developTrainingLogs: Develop\Logs\fit\
 trainFrames: C:\Users\Thomas\Pictures\db_v6\train
 valFrames: C:\Users\Thomas\Pictures\db_v6\val
 testFrames: C:\Users\Thomas\Pictures\db_v6\test
+
+trainingEpochs: 10
+targetImageSize: 224

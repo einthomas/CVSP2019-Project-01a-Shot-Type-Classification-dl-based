@@ -4,6 +4,7 @@ import getopt
 import cv2
 
 from Common.imageUtil import loadImage, preprocessImage
+from Common.util import config
 
 from Develop.predict import predictShotType_production, predictShotType_testData
 from PIL import Image
@@ -48,6 +49,10 @@ def main(argv):
         else:
             assert False, 'unhandled option'
 
+    if inputPath == '':
+        print('no input files specified, use argument -h to print usage information')
+        sys.exit(2)
+
     inputPaths = []
     isFolderInput = os.path.isdir(inputPath)
     if isFolderInput:
@@ -55,7 +60,7 @@ def main(argv):
     else:
         inputPaths.append(inputPath)
 
-    targetImageSize = 112 # TODO CHANGE TO 224
+    targetImageSize = int(config['targetImageSize'])
     csvContent = []
     if isVideoInput:    # Handle video input
         csvContent = ["videoPath;framePos;label"]
