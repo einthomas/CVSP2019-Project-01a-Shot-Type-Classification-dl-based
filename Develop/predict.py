@@ -18,14 +18,14 @@ def predictShotType_testData():
     testFramesPath = config['testFrames']
 
     # Load model and weights
-    if os.path.exists(getConfigRelativePath('modifiedModel')):
+    if os.path.exists(getConfigRelativePath('model')):
         # Load model
-        print("load model from " + getConfigRelativePath('modifiedModel'))
-        model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
-        if os.path.exists(getConfigRelativePath('checkpointModel')):
+        print("load model from " + getConfigRelativePath('model'))
+        model = keras.models.load_model(getConfigRelativePath('model'))
+        if os.path.exists(getConfigRelativePath('modelWeights')):
             # Load weights
-            print("load weights from " + getConfigRelativePath('checkpointModel'))
-            model.load_weights(getConfigRelativePath('checkpointModel'))
+            print("load weights from " + getConfigRelativePath('modelWeights'))
+            model.load_weights(getConfigRelativePath('modelWeights'))
 
     targetImageSize = 224
 
@@ -39,19 +39,20 @@ def predictShotType_testData():
     results_bool = np.argmax(results, axis=1)
     print(classification_report(testLabels, results_bool))
 
+
 model = 0
 def predictShotType_production(images):
     global model
     if model == 0:
         # Load model and weights
-        if os.path.exists(getConfigRelativePath('modifiedModel')):
+        if os.path.exists(getConfigRelativePath('model')):
             # Load model
-            print("load model from " + getConfigRelativePath('modifiedModel'))
-            model = keras.models.load_model(getConfigRelativePath('modifiedModel'))
-            if os.path.exists(getConfigRelativePath('checkpointModel')):
+            print("load model from " + getConfigRelativePath('model'))
+            model = keras.models.load_model(getConfigRelativePath('model'))
+            if os.path.exists(getConfigRelativePath('modelWeights')):
                 # Load weights
-                print("load weights from " + getConfigRelativePath('checkpointModel'))
-                model.load_weights(getConfigRelativePath('checkpointModel'))
+                print("load weights from " + getConfigRelativePath('modelWeights'))
+                model.load_weights(getConfigRelativePath('modelWeights'))
 
     # Predict image data shot types
     predictions = model.predict(images)

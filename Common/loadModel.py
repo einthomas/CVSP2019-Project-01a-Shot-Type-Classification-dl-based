@@ -32,12 +32,12 @@ def loadModel():
     )
 
     # Load weights if they exist
-    if os.path.exists(getConfigRelativePath('checkpointModel')):
-        print("load weights from " + getConfigRelativePath('checkpointModel'))
-        model.load_weights(getConfigRelativePath('checkpointModel'))
+    if os.path.exists(getConfigRelativePath('modelWeights')):
+        print("load weights from " + getConfigRelativePath('modelWeights'))
+        model.load_weights(getConfigRelativePath('modelWeights'))
 
     # Save the new model
-    model.save(getConfigRelativePath('modifiedModel'))
+    model.save(getConfigRelativePath('model'))
 
     # Write the model summary into modelSummary.txt
     with open(os.path.join(getConfigRelativePath('commonLogs'), 'modelSummary.txt'), 'w') as f:

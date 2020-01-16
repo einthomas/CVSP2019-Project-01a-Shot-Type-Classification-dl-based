@@ -68,7 +68,7 @@ def trainNetwork():
                     copyfile(os.path.join(root, file), os.path.join(targetPath, file))
 
     # Use ModelCheckpoint to save the weights whenever the validation loss is minimal
-    modelCheckpoint = keras.callbacks.ModelCheckpoint(getConfigRelativePath('checkpointModel'), save_weights_only=True,
+    modelCheckpoint = keras.callbacks.ModelCheckpoint(getConfigRelativePath('modelWeights'), save_weights_only=True,
                                                       monitor='val_loss', mode='min', save_best_only=True, verbose=1)
 
     # Train the model

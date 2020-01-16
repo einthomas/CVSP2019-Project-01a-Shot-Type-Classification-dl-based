@@ -1,10 +1,11 @@
+import os
 import sys
 import getopt
 import cv2
 
 from Common.imageUtil import loadImage, preprocessImage
 
-from Develop.predict import *
+from Develop.predict import predictShotType_production, predictShotType_testData
 from PIL import Image
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
@@ -95,6 +96,7 @@ def main(argv):
         csvFile.close()
 
     return csvContent
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
