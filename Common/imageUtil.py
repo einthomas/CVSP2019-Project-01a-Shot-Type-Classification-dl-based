@@ -1,8 +1,8 @@
 import os
+
 import numpy as np
-from keras.preprocessing import image
 from PIL import ImageOps
-import cv2
+from keras.preprocessing import image
 
 
 # Resize an image and apply a center crop. The returned image is a square with

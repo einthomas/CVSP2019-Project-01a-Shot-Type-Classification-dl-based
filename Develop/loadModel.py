@@ -3,13 +3,14 @@ from Common.util import *
 
 
 def loadModel():
-    # Use VGG16 with imagenet weights
-    baseModel = keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+    # Use VGG19 with imagenet weights
+    targetImageSize = int(config['targetImageSize'])
+    baseModel = keras.applications.VGG19(weights='imagenet', include_top=False, input_shape=(targetImageSize, targetImageSize, 3))
 
     # Freeze all layers except for the last eight
-    for layer in baseModel.layers[:-8]:
+    for layer in baseModel.layers[:-10]:
         layer.trainable = False
-    for layer in baseModel.layers[-8:]:
+    for layer in baseModel.layers[-10:]:
         layer.trainable = True
 
     for layer in baseModel.layers:
