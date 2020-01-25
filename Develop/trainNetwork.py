@@ -46,7 +46,7 @@ def trainNetwork():
     datagenVal.fit(valFrames)
 
     # Create a new log directory
-    logDir = os.path.join(getConfigRelativePath('developTrainingLogs') + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    logDir = os.path.join(getConfigRelativePath('logs') + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir=logDir, histogram_freq=1)
 
     # For simpler reproducibility of training results, all .py source files are copied to the Logs folder of the current
@@ -73,6 +73,10 @@ def trainNetwork():
     # Train the model
     model = loadModel()
     epochs = int(config['trainingEpochs'])
+
+    # Write the model summary into modelSummary.txt
+    with open(os.path.join(logDir, 'modelSummary.txt'), 'w') as f:
+        model.summary(print_fn=lambda x: f.write(x + '\n'))
 
     # During development the learning rate finder class by Bradley Kenstler has been used to find an optimal learning rate
     #lr_finder = LRFinder(min_lr=1e-7, max_lr=1e-3, steps_per_epoch=np.ceil(len(trainFrames) / 32.0), epochs=epochs)

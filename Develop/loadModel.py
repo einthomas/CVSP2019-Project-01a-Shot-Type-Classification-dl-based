@@ -40,8 +40,4 @@ def loadModel():
     # Save the new model
     model.save(getConfigRelativePath('model'))
 
-    # Write the model summary into modelSummary.txt
-    with open(os.path.join(getConfigRelativePath('commonLogs'), 'modelSummary.txt'), 'w') as f:
-        model.summary(print_fn=lambda x: f.write(x + '\n'))
-
     return model
