@@ -1,5 +1,8 @@
 .idea
 Logs
 __pycache__
+build
+dist
 
 *.h5
+*.egg-info

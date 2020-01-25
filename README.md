@@ -9,6 +9,10 @@ Four shot types can be differentiated: Extreme long shots, long shots, medium sh
 uses the scripts in `Develop` to predict shot types and returns (and stores)
 CSV containing the results.
 
+## Installation
+Run `python setup.py install` or `pip install .` in the top-level folder
+`CVSP2019-Project-01a-Shot-Type-Classification-dl-based` that contains `setup.py`.
+
 ## Usage
 ### Training the network
 `python -m Develop.trainNetwork` starts the training process. Intermediate
