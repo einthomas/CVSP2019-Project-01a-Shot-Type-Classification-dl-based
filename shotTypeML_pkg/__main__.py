@@ -15,16 +15,19 @@ from PIL import Image
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True
 
+
 def printUsage():
-    print('usage: ' + sys.argv[0] + ' [-h] [-i path] [-v path] [-o path]')
+    print('usage: ' + sys.argv[0] + ' [-h] [-c path] [-i path] [-v path] [-o path]')
     print('-h: prints usage information')
-    print('-i path: specifies a path where an input image or a folder containing images is located')
-    print('-v path: specifies a path where an input video or a folder containing videos is located')
-    print('-o path: specifies where the resulting CSV file is stored')
+    print('-c path: specifies a path to a .yaml config file')
+    print('-i path: specifies a path to an input image or a folder containing images is located')
+    print('-v path: specifies a path to an input video or a folder containing videos is located')
+    print('-o path: specifies a CSV file where the results are stored')
 
 
 def main(argv):
     # Parse command line arguments
+    configPath = ''
     inputPath = ''
     outputPath = ''
     isVideoInput = False
@@ -37,6 +40,9 @@ def main(argv):
         if option in ('-h', '--help'):
             printUsage()
             sys.exit()
+        elif option == '-c':
+            # Config input
+            configPath = argument
         elif option == '-i':
             # Image input
             inputPath = argument
@@ -48,6 +54,10 @@ def main(argv):
             outputPath = argument
         else:
             assert False, 'unhandled option'
+
+    if configPath == '':
+        print('no config file specified, use argument -h to print usage information')
+        sys.exit(2)
 
     if inputPath == '':
         print('no input files specified, use argument -h to print usage information')
