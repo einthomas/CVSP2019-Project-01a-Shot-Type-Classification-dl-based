@@ -30,3 +30,5 @@ test accuracy as well as precision and recall are printed.
 ### Production usage
 `demo.py` in `Demo` shows how to use the installed package to predict the shot
 types of images and videos.
+`python demo.py` predicts the shot types of the example images and videos in
+`Demo`.
