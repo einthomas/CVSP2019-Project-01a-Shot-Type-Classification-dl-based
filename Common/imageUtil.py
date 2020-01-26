@@ -46,9 +46,10 @@ def preprocessImage(img, targetSize, standardize):
     return img
 
 
-# Loads the images located at path. It is assumed that the images are located
-# in folders named according to their shot type (CU, MS, LS or ELS)
 def loadImagesAndLabels(path, shotTypes, targetSize, standardize=False):
+    """ Loads and returns the images located at `path`. It is assumed that the images are located in folders named
+    according to their shot type (CU, MS, LS or ELS). """
+
     images = []
     labels = []
 
@@ -65,8 +66,8 @@ def loadImagesAndLabels(path, shotTypes, targetSize, standardize=False):
     return np.array(images), np.array(labels)
 
 
-# Loads all images located at path and in subfolders of path
 def loadImagesFromFolder(path, targetSize, standardize=False):
+    """ Loads and returns all images located at `path` and in subfolders of `path`. """
     images = []
 
     for root, subdirs, files in os.walk(path):
@@ -79,7 +80,7 @@ def loadImagesFromFolder(path, targetSize, standardize=False):
     return np.array(images)
 
 
-# Loads a single image located at path
 def loadImage(path, targetSize, standardize=False):
-    img = image.load_img(path)#, color_mode="grayscale")
+    """ Loads a single image located at `path`. """
+    img = image.load_img(path)
     return np.array([preprocessImage(img, targetSize, standardize)])

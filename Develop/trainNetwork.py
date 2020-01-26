@@ -4,7 +4,6 @@ import datetime
 import tensorflow as tf
 from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
-from shutil import copyfile
 
 from Common.imageUtil import *
 from Common.lr_finder import LRFinder
@@ -18,6 +17,12 @@ tfConfig.gpu_options.allow_growth = True
 
 
 def trainNetwork(trainDataPath, valDataPath, logsPath, modelPath, modelWeightsPath, targetImageSize, epochs, useLRFinder):
+    """ Trains the model `modelPath` with weights `modelWeightsPath` using the specified training `trainDataPath`
+     and validation `valDataPath` data. A callback is used to store the weights at the lowest validation loss. Logs are
+     written under `logsPath` in a folder named `YYYYmmdd-HHMMSS`. The logs are written by TensorBoard. Setting
+     `useLRFinder` to `True` uses the learning rate finder by Bradley Kenstler and plots learning rates against
+     validation loss (use 3 epochs for this). """
+
     # Load path of training and validation images
     trainFramesPath = trainDataPath
     valFramesPath = valDataPath
@@ -51,25 +56,6 @@ def trainNetwork(trainDataPath, valDataPath, logsPath, modelPath, modelWeightsPa
     os.makedirs(logDir)
     tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir=logDir, histogram_freq=1)
     os.makedirs(os.path.join(logDir, 'train\plugins\profile'))
-
-    # For simpler reproducibility of training results, all .py source files are copied to the Logs folder of the current
-    # training
-    # Recursively go through all files
-    '''
-    for root, directories, files in os.walk(configHandler.config['workingDirectory']):
-        if "Logs" not in root:
-            for file in files:
-                # Go through all .py source files
-                if file.endswith(".py"):
-                    # Recreate the folder structure in the Logs folder
-                    directory = root[root.rfind('\\') + 1:]
-                    targetPath = os.path.join(logDir, 'src', directory)
-                    if not os.path.exists(targetPath):
-                        os.makedirs(targetPath)
-
-                    # Copy the file
-                    copyfile(os.path.join(root, file), os.path.join(targetPath, file))
-    '''
 
     # Use ModelCheckpoint to save the weights whenever the validation loss is minimal
     modelCheckpoint = keras.callbacks.ModelCheckpoint(modelWeightsPath, save_weights_only=True,
