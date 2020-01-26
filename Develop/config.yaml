@@ -1,0 +1,14 @@
+# Paths
+model: /media/sf_STC/Demo/model/model.h5
+modelWeights: /media/sf_STC/Demo/model/model_checkpoint_weights.h5
+
+logs: /media/sf_STC/Develop/log
+
+trainFrames: /media/sf_db_v6_small/train
+valFrames: /media/sf_db_v6_small/val
+testFrames: /media/sf_db_v6_small/test
+
+# Training configuration
+trainingEpochs: 10
+targetImageSize: 224
+useLRFinder: False

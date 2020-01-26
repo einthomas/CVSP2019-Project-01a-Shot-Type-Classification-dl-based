@@ -5,9 +5,9 @@ import tensorflow as tf
 from keras.utils import to_categorical
 from keras.preprocessing.image import ImageDataGenerator
 
-from Common.imageUtil import *
-from Common.lr_finder import LRFinder
-from Develop.loadModel import *
+from shotTypeML_pkg.imageUtil import *
+from Develop.lr_finder import LRFinder
+from shotTypeML_pkg.loadModel import *
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
@@ -55,7 +55,7 @@ def trainNetwork(trainDataPath, valDataPath, logsPath, modelPath, modelWeightsPa
     logDir = os.path.join(logsPath, datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     os.makedirs(logDir)
     tensorboardCallback = tf.keras.callbacks.TensorBoard(log_dir=logDir, histogram_freq=1)
-    os.makedirs(os.path.join(logDir, 'train\plugins\profile'))
+    os.makedirs(os.path.join(logDir, 'train/plugins/profile'))
 
     # Use ModelCheckpoint to save the weights whenever the validation loss is minimal
     modelCheckpoint = keras.callbacks.ModelCheckpoint(modelWeightsPath, save_weights_only=True,
@@ -88,8 +88,9 @@ def trainNetwork(trainDataPath, valDataPath, logsPath, modelPath, modelWeightsPa
 
 
 if __name__ == '__main__':
+    print()
     parser = ArgumentParser()
-    parser.add_argument('-config', type=str, help='Config .yaml file containing configuration settings')
+    parser.add_argument('-config', type=str, help='Config .yaml file containing configuration settings', required=True)
     args = parser.parse_args()
 
     with open(args.config) as configFile:

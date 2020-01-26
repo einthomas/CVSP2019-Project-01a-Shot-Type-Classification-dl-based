@@ -1,10 +1,10 @@
-import yaml
 from argparse import ArgumentParser
-from keras.utils import to_categorical
+
+import yaml
 from sklearn.metrics import classification_report
 
-from Common.imageUtil import *
-from Develop.loadModel import *
+from shotTypeML_pkg.imageUtil import *
+from shotTypeML_pkg.loadModel import *
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
@@ -15,7 +15,7 @@ from Develop.loadModel import *
 shotTypes = ['CU', 'MS', 'LS', 'ELS']
 
 
-def predictShotType_testData(modelPath, modelWeightsPath, testDataPath, targetImageSize):
+def predictShotType(modelPath, modelWeightsPath, testDataPath, targetImageSize):
     # Load test frames path from config
     testFramesPath = testDataPath
 
@@ -32,7 +32,6 @@ def predictShotType_testData(modelPath, modelWeightsPath, testDataPath, targetIm
     # Load test data
     print("loading test data...")
     testFrames, testLabels = loadImagesAndLabels(testFramesPath, shotTypes, targetImageSize, True)
-    testLabelsCategorical = to_categorical(testLabels)
 
     # Predict test data shot types
     results = model.predict(testFrames, verbose=1)
@@ -40,35 +39,16 @@ def predictShotType_testData(modelPath, modelWeightsPath, testDataPath, targetIm
     print(classification_report(testLabels, results_bool))
 
 
-model = 0
-def predictShotType_production(modelPath, modelWeightsPath, images):
-    global model
-    if model == 0:
-        # Load model and weights
-        if os.path.exists(modelPath):
-            # Load model
-            print("load model from " + modelPath)
-            model = keras.models.load_model(modelPath)
-            if os.path.exists(modelWeightsPath):
-                # Load weights
-                print("load weights from " + modelWeightsPath)
-                model.load_weights(modelWeightsPath)
-
-    # Predict image data shot types
-    predictions = model.predict(images)
-    labels = [shotTypes[np.argmax(prediction)] for prediction in predictions]
-    return labels
-
-
 if __name__ == '__main__':
+    print()
     parser = ArgumentParser()
-    parser.add_argument('-config', type=str, help='Config .yaml file containing configuration settings')
+    parser.add_argument('-config', type=str, help='Config .yaml file containing configuration settings', required=True)
     args = parser.parse_args()
 
     with open(args.config) as configFile:
         config = yaml.full_load(configFile)
 
-    predictShotType_testData(
+    predictShotType(
         config['model'],
         config['modelWeights'],
         config['testFrames'],
