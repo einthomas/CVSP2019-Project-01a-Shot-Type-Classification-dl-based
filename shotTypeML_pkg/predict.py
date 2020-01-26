@@ -11,7 +11,10 @@ shotTypes = ['CU', 'MS', 'LS', 'ELS']
 model = 0
 
 
-def predictShotType(modelPath, modelWeightsPath, images):
+def predictShotType(modelPath, modelWeightsPath, image):
+    """ Predicts the shot type of the provided image. """
+
+    # Load model and weights if they have not been loaded
     global model
     if model == 0:
         # Load model and weights
@@ -25,6 +28,6 @@ def predictShotType(modelPath, modelWeightsPath, images):
                 model.load_weights(modelWeightsPath)
 
     # Predict image data shot types
-    predictions = model.predict(images)
+    predictions = model.predict(image)
     labels = [shotTypes[np.argmax(prediction)] for prediction in predictions]
     return labels

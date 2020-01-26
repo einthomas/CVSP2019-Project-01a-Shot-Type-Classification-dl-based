@@ -18,10 +18,11 @@ tfConfig.gpu_options.allow_growth = True
 
 def trainNetwork(trainDataPath, valDataPath, logsPath, modelPath, modelWeightsPath, targetImageSize, epochs, useLRFinder):
     """ Trains the model `modelPath` with weights `modelWeightsPath` using the specified training `trainDataPath`
-     and validation `valDataPath` data. A callback is used to store the weights at the lowest validation loss. Logs are
-     written under `logsPath` in a folder named `YYYYmmdd-HHMMSS`. The logs are written by TensorBoard. Setting
-     `useLRFinder` to `True` uses the learning rate finder by Bradley Kenstler and plots learning rates against
-     validation loss (use 3 epochs for this). """
+     and validation `valDataPath` data. `trainDataPath` and `valDataPath` have to be paths to a folder containing one
+     folder for each shot type (CU, ML, LS, ELS) containing images. A callback is used to store the weights at the
+     lowest validation loss. Logs are written under `logsPath` in a folder named `YYYYmmdd-HHMMSS`. The logs are written
+     by TensorBoard. Setting `useLRFinder` to `True` uses the learning rate finder by Bradley Kenstler and plots
+     learning rates against validation loss (use 3 epochs for this). """
 
     # Load path of training and validation images
     trainFramesPath = trainDataPath

@@ -16,6 +16,9 @@ shotTypes = ['CU', 'MS', 'LS', 'ELS']
 
 
 def predictShotType(modelPath, modelWeightsPath, testDataPath, targetImageSize):
+    """ Predict the shot type of the provided test data. `testDataPath` has to be a path to a folder containing one
+    folder for each shot type (CU, ML, LS, ELS) containing images. Precision, recall and f1-score are printed. """
+
     # Load test frames path from config
     testFramesPath = testDataPath
 

@@ -3,7 +3,7 @@ import yaml
 import os
 import numpy as np
 from shotTypeML_pkg.imageUtil import loadImage, preprocessImage
-from shotTypeML_pkg.predict import predictShotType_production
+from shotTypeML_pkg.predict import predictShotType
 from PIL import Image
 
 
@@ -62,7 +62,7 @@ class ShotTypeClassifierML:
             # Go through all the images, pre-process and label them
             for i in inputPaths:
                 # Predict shot type
-                label = predictShotType_production(
+                label = predictShotType(
                     self.config['model'],
                     self.config['modelWeights'],
                     loadImage(i, targetImageSize, True)
