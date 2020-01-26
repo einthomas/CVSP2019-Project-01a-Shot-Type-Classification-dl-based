@@ -2,10 +2,10 @@ import os
 import sys
 import getopt
 import cv2
+import yaml
 import numpy as np
 
 from Common.imageUtil import loadImage, preprocessImage
-from Common.util import configHandler
 
 from Develop.predict import predictShotType_production, predictShotType_testData
 from PIL import Image
@@ -67,7 +67,9 @@ def main(argv):
     if configPath == '':
         print('no config file specified, use argument -h to print usage information')
         sys.exit(2)
-    configHandler.loadConfig(configPath)
+
+    with open(configPath) as configFile:
+        config = yaml.full_load(configFile)
 
     # Check if input files have been specified
     if inputPath == '':
@@ -76,12 +78,12 @@ def main(argv):
 
     # Create directories containing the model, weights and logs if they do not
     # exist
-    if not os.path.exists(os.path.dirname(configHandler.config['model'])):
-        os.makedirs(os.path.dirname(configHandler.config['model']))
-    if not os.path.exists(os.path.dirname(configHandler.config['modelWeights'])):
-        os.makedirs(os.path.dirname(configHandler.config['modelWeights']))
-    if not os.path.exists(configHandler.config['logs']):
-        os.makedirs(configHandler.config['logs'])
+    if not os.path.exists(os.path.dirname(config['model'])):
+        os.makedirs(os.path.dirname(config['model']))
+    if not os.path.exists(os.path.dirname(config['modelWeights'])):
+        os.makedirs(os.path.dirname(config['modelWeights']))
+    if not os.path.exists(config['logs']):
+        os.makedirs(config['logs'])
 
     # Load input files (either a single image or video or all images or videos)
     # inside the specified folder
@@ -92,7 +94,7 @@ def main(argv):
     else:
         inputPaths.append(inputPath)
 
-    targetImageSize = int(configHandler.config['targetImageSize'])
+    targetImageSize = int(config['targetImageSize'])
     csvContent = []
     if isVideoInput:    # Handle video input
         csvContent = ["videoPath;framePos;label"]
@@ -101,7 +103,7 @@ def main(argv):
         for i in inputPaths:
             # Open video
             cap = cv2.VideoCapture(i)
-            while (cap.isOpened()):
+            while cap.isOpened():
                 # Extract frame
                 ret, image = cap.read()
                 if not ret:
@@ -113,7 +115,7 @@ def main(argv):
                 pilImage = preprocessImage(pilImage, targetImageSize, True)
 
                 # Predict shot type
-                label = predictShotType_production(np.array([pilImage]))[0]
+                label = predictShotType_production(config['model'], config['modelWeights'], np.array([pilImage]))[0]
 
                 # Build CSV entry
                 csvContent.append(i + ";" + str(int(framePos)) + ";" + label)
@@ -123,7 +125,11 @@ def main(argv):
         # Go through all the images, pre-process and label them
         for i in inputPaths:
             # Predict shot type
-            label = predictShotType_production(loadImage(i, targetImageSize, True))[0]
+            label = predictShotType_production(
+                config['model'],
+                config['modelWeights'],
+                loadImage(i, targetImageSize, True)
+            )[0]
 
             # Build CSV entry
             csvContent.append(i + ";" + label)
