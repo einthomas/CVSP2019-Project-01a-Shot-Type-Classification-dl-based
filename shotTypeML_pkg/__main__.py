@@ -2,12 +2,14 @@ import os
 import sys
 import getopt
 import cv2
+import numpy as np
 
 from Common.imageUtil import loadImage, preprocessImage
-from Common.util import config
+from Common.util import configHandler
 
 from Develop.predict import predictShotType_production, predictShotType_testData
 from PIL import Image
+
 
 # Fix "failed to initialize cuDNN" by explicitly allowing to dynamically grow
 # the memory used on the GPU
@@ -17,7 +19,9 @@ from PIL import Image
 
 
 def printUsage():
+    """ Prints a description of all the available command line arguments """
     print('usage: ' + sys.argv[0] + ' [-h] [-c path] [-i path] [-v path] [-o path]')
+    print('-c and either -i or -v are required parameters')
     print('-h: prints usage information')
     print('-c path: specifies a path to a .yaml config file')
     print('-i path: specifies a path to an input image or a folder containing images is located')
@@ -26,13 +30,17 @@ def printUsage():
 
 
 def main(argv):
+    """ Parses the command line arguments and calls functions from the Develop
+    module to label the specified images or videos. The labels are returned as
+    CSV and stored to a file if a path is provided. """
+
     # Parse command line arguments
     configPath = ''
     inputPath = ''
     outputPath = ''
     isVideoInput = False
     try:
-        opts, args = getopt.getopt(argv, 'hi:v:o:', ['help'])
+        opts, args = getopt.getopt(argv, 'hc:i:v:o:', ['help'])
     except getopt.GetoptError as err:
         print(str(err))
         sys.exit(2)
@@ -55,14 +63,28 @@ def main(argv):
         else:
             assert False, 'unhandled option'
 
+    # Check if config file has been specified
     if configPath == '':
         print('no config file specified, use argument -h to print usage information')
         sys.exit(2)
+    configHandler.loadConfig(configPath)
 
+    # Check if input files have been specified
     if inputPath == '':
         print('no input files specified, use argument -h to print usage information')
         sys.exit(2)
 
+    # Create directories containing the model, weights and logs if they do not
+    # exist
+    if not os.path.exists(os.path.dirname(configHandler.config['model'])):
+        os.makedirs(os.path.dirname(configHandler.config['model']))
+    if not os.path.exists(os.path.dirname(configHandler.config['modelWeights'])):
+        os.makedirs(os.path.dirname(configHandler.config['modelWeights']))
+    if not os.path.exists(configHandler.config['logs']):
+        os.makedirs(configHandler.config['logs'])
+
+    # Load input files (either a single image or video or all images or videos)
+    # inside the specified folder
     inputPaths = []
     isFolderInput = os.path.isdir(inputPath)
     if isFolderInput:
@@ -70,10 +92,12 @@ def main(argv):
     else:
         inputPaths.append(inputPath)
 
-    targetImageSize = int(config['targetImageSize'])
+    targetImageSize = int(configHandler.config['targetImageSize'])
     csvContent = []
     if isVideoInput:    # Handle video input
         csvContent = ["videoPath;framePos;label"]
+        # Go through all the videos, extract each frame, pre-process and
+        # label them
         for i in inputPaths:
             # Open video
             cap = cv2.VideoCapture(i)
@@ -96,7 +120,7 @@ def main(argv):
             cap.release()
     else:   # Handle image input
         csvContent = ["imagePath;label"]
-        images = []
+        # Go through all the images, pre-process and label them
         for i in inputPaths:
             # Predict shot type
             label = predictShotType_production(loadImage(i, targetImageSize, True))[0]
@@ -104,7 +128,7 @@ def main(argv):
             # Build CSV entry
             csvContent.append(i + ";" + label)
 
-    # Write CSV file
+    # Write CSV file if an output path is specified
     if outputPath != '':
         csvFile = open(outputPath, "w")
         csvFile.write('\n'.join(csvContent))

@@ -1,3 +1,5 @@
+import yaml
+from argparse import ArgumentParser
 from keras.utils import to_categorical
 from sklearn.metrics import classification_report
 
@@ -13,21 +15,19 @@ from Develop.loadModel import *
 shotTypes = ['CU', 'MS', 'LS', 'ELS']
 
 
-def predictShotType_testData():
+def predictShotType_testData(modelPath, modelWeightsPath, testDataPath, targetImageSize):
     # Load test frames path from config
-    testFramesPath = config['testFrames']
+    testFramesPath = testDataPath
 
     # Load model and weights
-    if os.path.exists(getConfigRelativePath('model')):
+    if os.path.exists(modelPath):
         # Load model
-        print("load model from " + getConfigRelativePath('model'))
-        model = keras.models.load_model(getConfigRelativePath('model'))
-        if os.path.exists(getConfigRelativePath('modelWeights')):
+        print("load model from " + modelPath)
+        model = keras.models.load_model(modelPath)
+        if os.path.exists(modelWeightsPath):
             # Load weights
-            print("load weights from " + getConfigRelativePath('modelWeights'))
-            model.load_weights(getConfigRelativePath('modelWeights'))
-
-    targetImageSize = int(config['targetImageSize'])
+            print("load weights from " + modelWeightsPath)
+            model.load_weights(modelWeightsPath)
 
     # Load test data
     print("loading test data...")
@@ -41,18 +41,18 @@ def predictShotType_testData():
 
 
 model = 0
-def predictShotType_production(images):
+def predictShotType_production(modelPath, modelWeightsPath, images):
     global model
     if model == 0:
         # Load model and weights
-        if os.path.exists(getConfigRelativePath('model')):
+        if os.path.exists(modelPath):
             # Load model
-            print("load model from " + getConfigRelativePath('model'))
-            model = keras.models.load_model(getConfigRelativePath('model'))
-            if os.path.exists(getConfigRelativePath('modelWeights')):
+            print("load model from " + modelPath)
+            model = keras.models.load_model(modelPath)
+            if os.path.exists(modelWeightsPath):
                 # Load weights
-                print("load weights from " + getConfigRelativePath('modelWeights'))
-                model.load_weights(getConfigRelativePath('modelWeights'))
+                print("load weights from " + modelWeightsPath)
+                model.load_weights(modelWeightsPath)
 
     # Predict image data shot types
     predictions = model.predict(images)
@@ -61,4 +61,16 @@ def predictShotType_production(images):
 
 
 if __name__ == '__main__':
-    predictShotType_testData()
+    parser = ArgumentParser()
+    parser.add_argument('-config', type=str, help='Config .yaml file containing configuration settings')
+    args = parser.parse_args()
+
+    with open(args.config) as configFile:
+        config = yaml.full_load(configFile)
+
+    predictShotType_testData(
+        config['model'],
+        config['modelWeights'],
+        config['testFrames'],
+        int(config['targetImageSize'])
+    )

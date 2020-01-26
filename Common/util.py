@@ -1,12 +1,16 @@
-import os
 import yaml
 
-executablePath = os.path.dirname(os.path.realpath(__file__))
 
-config = {}
-with open(os.path.join(executablePath, '..', 'config.yaml')) as configFile:
-    config = yaml.full_load(configFile)
+class Config:
+    def __init__(self):
+        self.config = {}
+
+    def loadConfig(self, path):
+        with open(path) as configFile:
+            self.config = yaml.full_load(configFile)
 
 
-def getConfigRelativePath(key):
-    return os.path.join(config['workingDirectory'], config[key])
+configHandler = Config()
+
+# def getConfigRelativePath(key):
+#    return os.path.join(config['workingDirectory'], config[key])

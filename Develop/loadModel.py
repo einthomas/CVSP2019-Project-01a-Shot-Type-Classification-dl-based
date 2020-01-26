@@ -1,10 +1,12 @@
+import os
 from tensorflow import keras
-from Common.util import *
 
 
-def loadModel():
+def loadModel(modelPath, modelWeightsPath, targetImageSize):
+    """ Builds and returns a new VGG19 model with imagenet weights. The topmost
+    layers are frozen and a dense layer with 4 outputs is appended. """
+
     # Use VGG19 with imagenet weights
-    targetImageSize = int(config['targetImageSize'])
     baseModel = keras.applications.VGG19(weights='imagenet', include_top=False, input_shape=(targetImageSize, targetImageSize, 3))
 
     # Freeze all layers except for the last eight
@@ -33,11 +35,13 @@ def loadModel():
     )
 
     # Load weights if they exist
-    if os.path.exists(getConfigRelativePath('modelWeights')):
-        print("load weights from " + getConfigRelativePath('modelWeights'))
-        model.load_weights(getConfigRelativePath('modelWeights'))
+    if os.path.exists(modelWeightsPath):
+        print("load weights from " + modelWeightsPath)
+        model.load_weights(modelWeightsPath)
 
     # Save the new model
-    model.save(getConfigRelativePath('model'))
+    if not os.path.exists(os.path.dirname(modelWeightsPath)):
+        os.makedirs(os.path.dirname(modelWeightsPath))
+    model.save(modelPath)
 
     return model

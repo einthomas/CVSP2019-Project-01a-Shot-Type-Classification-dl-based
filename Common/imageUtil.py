@@ -5,9 +5,10 @@ from PIL import ImageOps
 from keras.preprocessing import image
 
 
-# Resize an image and apply a center crop. The returned image is a square with
-# a width and height of targetSize
 def centerCropImage(img, targetSize):
+    """ Returns a center-cropped image. The returned image is a square image
+    with a width and height of `targetSize`. """
+
     # Resize image while keeping its aspect ratio
     width, height = img.size
     if height < targetSize:
@@ -25,6 +26,9 @@ def centerCropImage(img, targetSize):
 
 
 def preprocessImage(img, targetSize, standardize):
+    """ Applies center-crop, histogram equalization as well as zero-centering
+    and normalization, if `standardize` is `True`, and returns the image. """
+
     img = img.convert('L')
     img = centerCropImage(img, targetSize)
     # img = ImageOps.autocontrast(img, cutoff=5)
