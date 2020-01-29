@@ -32,3 +32,5 @@ test accuracy as well as precision and recall are printed.
 types of images and videos.
 `python demo.py` predicts the shot types of the example images and videos in
 `Demo`.
+
+Tested using Python 3.7.5
